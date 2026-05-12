@@ -26,7 +26,7 @@ import timber.log.Timber.DebugTree
  * Read Timber's documentation for production setups.
  */
 @HiltAndroidApp
-class TodoApplication : Application() {
+class MainApplication : Application() {
 
     override fun onCreate() {
         super.onCreate()
