@@ -122,6 +122,11 @@ class DefaultTaskRepository @Inject constructor(
         saveTasksToNetwork()
     }
 
+    override suspend fun completeTask(taskId: String, completed: Boolean) {
+        localDataSource.updateCompleted(taskId = taskId, completed = completed)
+        saveTasksToNetwork()
+    }
+
     override suspend fun deleteTask(taskId: String) {
         localDataSource.deleteById(taskId)
         saveTasksToNetwork()
