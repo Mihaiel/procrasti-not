@@ -69,9 +69,13 @@ fun TodoNavGraph(
             )
         ) { entry ->
             AppModalDrawer(drawerState, currentRoute, navActions) {
+                val userMessage = entry.savedStateHandle.get<Int>(USER_MESSAGE_ARG)
+                    ?: entry.arguments?.getInt(USER_MESSAGE_ARG)?.also {
+                        entry.savedStateHandle[USER_MESSAGE_ARG] = it
+                    } ?: 0
                 TasksScreen(
-                    userMessage = entry.arguments?.getInt(USER_MESSAGE_ARG)!!,
-                    onUserMessageDisplayed = { entry.arguments?.putInt(USER_MESSAGE_ARG, 0) },
+                    userMessage = userMessage,
+                    onUserMessageDisplayed = { entry.savedStateHandle[USER_MESSAGE_ARG] = 0 },
                     onAddTask = { navActions.navigateToAddEditTask(R.string.add_task, null) },
                     onTaskClick = { task -> navActions.navigateToTaskDetail(task.id) },
                     openDrawer = { coroutineScope.launch { drawerState.open() } }

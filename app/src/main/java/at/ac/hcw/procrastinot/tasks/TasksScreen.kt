@@ -43,6 +43,7 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -82,6 +83,10 @@ fun TasksScreen(
     viewModel: TasksViewModel = hiltViewModel(),
     snackbarHostState: SnackbarHostState = remember { SnackbarHostState() }
 ) {
+
+    DisposableEffect(snackbarHostState) {
+        onDispose { snackbarHostState.currentSnackbarData?.dismiss() }
+    }
 
     Scaffold(
         modifier = modifier.fillMaxSize(),
@@ -123,8 +128,11 @@ fun TasksScreen(
         uiState.userMessage?.let { message ->
             val snackbarText = stringResource(message)
             LaunchedEffect(snackbarHostState, viewModel, message, snackbarText) {
-                snackbarHostState.showSnackbar(snackbarText)
-                viewModel.snackbarMessageShown()
+                try {
+                    snackbarHostState.showSnackbar(snackbarText)
+                } finally {
+                    viewModel.snackbarMessageShown()
+                }
             }
         }
 
