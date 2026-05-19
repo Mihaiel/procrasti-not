@@ -14,25 +14,19 @@
  * limitations under the License.
  */
 
-package at.ac.hcw.procrastinot
+package at.ac.hcw.procrastinot.data.source.local
 
-import android.os.Bundle
-import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
-import dagger.hilt.android.AndroidEntryPoint
+import androidx.room.Database
+import androidx.room.RoomDatabase
 
-@AndroidEntryPoint
-class MainActivity : ComponentActivity() {
+/**
+ * The Room Database that contains the Task table.
+ *
+ * Note that exportSchema should be true in production databases.
+ */
+@Database(entities = [LocalTask::class], version = 1, exportSchema = false)
+abstract class ToDoDatabase : RoomDatabase() {
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
-        setContent {
-            TodoTheme {
-                TodoNavGraph()
-            }
-        }
-    }
+    abstract fun taskDao(): TaskDao
 }
 

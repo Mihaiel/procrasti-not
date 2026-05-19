@@ -14,25 +14,25 @@
  * limitations under the License.
  */
 
-package at.ac.hcw.procrastinot
+package at.ac.hcw.procrastinot.tasks
 
-import android.os.Bundle
-import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
-import dagger.hilt.android.AndroidEntryPoint
+/**
+ * Used with the filter spinner in the tasks list.
+ */
+enum class TasksFilterType {
+    /**
+     * Do not filter tasks.
+     */
+    ALL_TASKS,
 
-@AndroidEntryPoint
-class MainActivity : ComponentActivity() {
+    /**
+     * Filters only the active (not completed yet) tasks.
+     */
+    ACTIVE_TASKS,
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
-        setContent {
-            TodoTheme {
-                TodoNavGraph()
-            }
-        }
-    }
+    /**
+     * Filters only the completed tasks.
+     */
+    COMPLETED_TASKS
 }
 

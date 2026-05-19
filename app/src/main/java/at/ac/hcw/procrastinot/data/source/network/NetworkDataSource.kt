@@ -14,25 +14,16 @@
  * limitations under the License.
  */
 
-package at.ac.hcw.procrastinot
+package at.ac.hcw.procrastinot.data.source.network
 
-import android.os.Bundle
-import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
-import dagger.hilt.android.AndroidEntryPoint
+/**
+ * Main entry point for accessing tasks data from the network.
+ *
+ */
+interface NetworkDataSource {
 
-@AndroidEntryPoint
-class MainActivity : ComponentActivity() {
+    suspend fun loadTasks(): List<NetworkTask>
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
-        setContent {
-            TodoTheme {
-                TodoNavGraph()
-            }
-        }
-    }
+    suspend fun saveTasks(tasks: List<NetworkTask>)
 }
 
