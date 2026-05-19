@@ -32,6 +32,7 @@ import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Surface
@@ -56,6 +57,9 @@ fun TasksTopAppBar(
     onFilterAllTasks: () -> Unit,
     onFilterActiveTasks: () -> Unit,
     onFilterCompletedTasks: () -> Unit,
+    onFilterHighPriority: () -> Unit,
+    onFilterMediumPriority: () -> Unit,
+    onFilterLowPriority: () -> Unit,
     onClearCompletedTasks: () -> Unit,
     onRefresh: () -> Unit
 ) {
@@ -67,7 +71,10 @@ fun TasksTopAppBar(
             }
         },
         actions = {
-            FilterTasksMenu(onFilterAllTasks, onFilterActiveTasks, onFilterCompletedTasks)
+            FilterTasksMenu(
+                onFilterAllTasks, onFilterActiveTasks, onFilterCompletedTasks,
+                onFilterHighPriority, onFilterMediumPriority, onFilterLowPriority
+            )
             MoreTasksMenu(onClearCompletedTasks, onRefresh)
         },
         modifier = Modifier.fillMaxWidth()
@@ -78,7 +85,10 @@ fun TasksTopAppBar(
 private fun FilterTasksMenu(
     onFilterAllTasks: () -> Unit,
     onFilterActiveTasks: () -> Unit,
-    onFilterCompletedTasks: () -> Unit
+    onFilterCompletedTasks: () -> Unit,
+    onFilterHighPriority: () -> Unit,
+    onFilterMediumPriority: () -> Unit,
+    onFilterLowPriority: () -> Unit
 ) {
     TopAppBarDropdownMenu(
         iconContent = {
@@ -96,6 +106,16 @@ private fun FilterTasksMenu(
         )
         DropdownMenuItem(onClick = { onFilterCompletedTasks(); closeMenu() },
             text = { Text(text = stringResource(id = R.string.nav_completed)) }
+        )
+        HorizontalDivider()
+        DropdownMenuItem(onClick = { onFilterHighPriority(); closeMenu() },
+            text = { Text(text = stringResource(id = R.string.priority_high)) }
+        )
+        DropdownMenuItem(onClick = { onFilterMediumPriority(); closeMenu() },
+            text = { Text(text = stringResource(id = R.string.priority_medium)) }
+        )
+        DropdownMenuItem(onClick = { onFilterLowPriority(); closeMenu() },
+            text = { Text(text = stringResource(id = R.string.priority_low)) }
         )
     }
 }
@@ -193,7 +213,7 @@ fun AddEditTaskTopAppBar(@StringRes title: Int, onBack: () -> Unit) {
 private fun TasksTopAppBarPreview() {
     TodoTheme {
         Surface {
-            TasksTopAppBar({}, {}, {}, {}, {}, {})
+            TasksTopAppBar({}, {}, {}, {}, {}, {}, {}, {}, {})
         }
     }
 }

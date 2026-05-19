@@ -33,6 +33,21 @@ enum class TasksFilterType {
     /**
      * Filters only the completed tasks.
      */
-    COMPLETED_TASKS
+    COMPLETED_TASKS,
+
+    /**
+     * Filters only high priority tasks.
+     */
+    HIGH_PRIORITY,
+
+    /**
+     * Filters only medium priority tasks.
+     */
+    MEDIUM_PRIORITY,
+
+    /**
+     * Filters only low priority tasks.
+     */
+    LOW_PRIORITY
 }
 

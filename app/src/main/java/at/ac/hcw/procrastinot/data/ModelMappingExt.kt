@@ -40,6 +40,7 @@ fun Task.toLocal() = LocalTask(
     title = title,
     description = description,
     isCompleted = isCompleted,
+    priority = priority.name,
 )
 
 fun List<Task>.toLocal() = map(Task::toLocal)
@@ -50,6 +51,7 @@ fun LocalTask.toExternal() = Task(
     title = title,
     description = description,
     isCompleted = isCompleted,
+    priority = try { Priority.valueOf(priority) } catch (_: Exception) { Priority.LOW },
 )
 
 // Note: JvmName is used to provide a unique name for each extension function with the same name.
@@ -64,6 +66,7 @@ fun NetworkTask.toLocal() = LocalTask(
     title = title,
     description = shortDescription,
     isCompleted = (status == TaskStatus.COMPLETE),
+    priority = priority?.let { networkPriorityToLocal(it) } ?: Priority.LOW.name,
 )
 
 @JvmName("networkToLocal")
@@ -74,10 +77,25 @@ fun LocalTask.toNetwork() = NetworkTask(
     id = id,
     title = title,
     shortDescription = description,
+    priority = localPriorityToNetwork(priority),
     status = if (isCompleted) { TaskStatus.COMPLETE } else { TaskStatus.ACTIVE }
 )
 
 fun List<LocalTask>.toNetwork() = map(LocalTask::toNetwork)
+
+/** Maps a network priority integer to a local priority string. */
+private fun networkPriorityToLocal(value: Int): String = when (value) {
+    1 -> Priority.HIGH.name
+    2 -> Priority.MEDIUM.name
+    else -> Priority.LOW.name
+}
+
+/** Maps a local priority string to a network priority integer. */
+private fun localPriorityToNetwork(value: String): Int = when (value) {
+    Priority.HIGH.name -> 1
+    Priority.MEDIUM.name -> 2
+    else -> 3
+}
 
 // External to Network
 fun Task.toNetwork() = toLocal().toNetwork()

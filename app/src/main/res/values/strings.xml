@@ -61,6 +61,16 @@
     <string name="no_tasks_all">You have no tasks!</string>
     <string name="no_tasks_active">You have no active tasks!</string>
     <string name="no_tasks_completed">You have no completed tasks!</string>
+    <string name="label_high_priority">High Priority Tasks</string>
+    <string name="label_medium_priority">Medium Priority Tasks</string>
+    <string name="label_low_priority">Low Priority Tasks</string>
+    <string name="no_tasks_high_priority">You have no high priority tasks!</string>
+    <string name="no_tasks_medium_priority">You have no medium priority tasks!</string>
+    <string name="no_tasks_low_priority">You have no low priority tasks!</string>
+    <string name="priority_high">High</string>
+    <string name="priority_medium">Medium</string>
+    <string name="priority_low">Low</string>
+    <string name="priority_label">Priority</string>
     <string name="refresh">Refresh</string>
     <string name="successfully_deleted_task_message">Task was deleted</string>
     <string name="successfully_added_task_message">Task added</string>

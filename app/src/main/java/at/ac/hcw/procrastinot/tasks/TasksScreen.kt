@@ -19,6 +19,7 @@ package at.ac.hcw.procrastinot.tasks
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -27,6 +28,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
@@ -57,10 +59,15 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import at.ac.hcw.procrastinot.R
 import at.ac.hcw.procrastinot.TodoTheme
+import at.ac.hcw.procrastinot.data.Priority
 import at.ac.hcw.procrastinot.data.Task
 import at.ac.hcw.procrastinot.tasks.TasksFilterType.ACTIVE_TASKS
 import at.ac.hcw.procrastinot.tasks.TasksFilterType.ALL_TASKS
 import at.ac.hcw.procrastinot.tasks.TasksFilterType.COMPLETED_TASKS
+import at.ac.hcw.procrastinot.tasks.TasksFilterType.HIGH_PRIORITY
+import at.ac.hcw.procrastinot.tasks.TasksFilterType.LOW_PRIORITY
+import at.ac.hcw.procrastinot.tasks.TasksFilterType.MEDIUM_PRIORITY
+import androidx.compose.ui.graphics.Color
 import at.ac.hcw.procrastinot.util.LoadingContent
 import at.ac.hcw.procrastinot.util.TasksTopAppBar
 
@@ -85,6 +92,9 @@ fun TasksScreen(
                 onFilterAllTasks = { viewModel.setFiltering(ALL_TASKS) },
                 onFilterActiveTasks = { viewModel.setFiltering(ACTIVE_TASKS) },
                 onFilterCompletedTasks = { viewModel.setFiltering(COMPLETED_TASKS) },
+                onFilterHighPriority = { viewModel.setFiltering(HIGH_PRIORITY) },
+                onFilterMediumPriority = { viewModel.setFiltering(MEDIUM_PRIORITY) },
+                onFilterLowPriority = { viewModel.setFiltering(LOW_PRIORITY) },
                 onClearCompletedTasks = { viewModel.clearCompletedTasks() },
                 onRefresh = { viewModel.refresh() }
             )
@@ -179,6 +189,11 @@ private fun TaskItem(
     onCheckedChange: (Boolean) -> Unit,
     onTaskClick: (Task) -> Unit
 ) {
+    val priorityColor = when (task.priority) {
+        Priority.HIGH -> Color.Red
+        Priority.MEDIUM -> Color(0xFFFF9800)
+        Priority.LOW -> Color(0xFF64B5F6)
+    }
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier
@@ -187,24 +202,38 @@ private fun TaskItem(
                 horizontal = dimensionResource(id = R.dimen.horizontal_margin),
                 vertical = dimensionResource(id = R.dimen.list_item_padding),
             )
+            .background(
+                color = priorityColor.copy(alpha = 0.12f),
+                shape = RoundedCornerShape(8.dp)
+            )
             .clickable { onTaskClick(task) }
+            .padding(8.dp)
     ) {
         Checkbox(
             checked = task.isCompleted,
             onCheckedChange = onCheckedChange
         )
-        Text(
-            text = task.titleForList,
-            style = MaterialTheme.typography.headlineSmall,
+        Column(
             modifier = Modifier.padding(
                 start = dimensionResource(id = R.dimen.horizontal_margin)
-            ),
-            textDecoration = if (task.isCompleted) {
-                TextDecoration.LineThrough
-            } else {
-                null
-            }
-        )
+            )
+        ) {
+            Text(
+                text = task.titleForList,
+                style = MaterialTheme.typography.headlineSmall,
+                textDecoration = if (task.isCompleted) {
+                    TextDecoration.LineThrough
+                } else {
+                    null
+                }
+            )
+            Text(
+                text = "Priority: ${task.priority.name.lowercase()
+                    .replaceFirstChar { it.uppercase() }}",
+                style = MaterialTheme.typography.bodySmall,
+                color = priorityColor
+            )
+        }
     }
 }
 

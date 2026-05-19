@@ -20,6 +20,7 @@ package at.ac.hcw.procrastinot.addedittask
 
 import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -34,12 +35,16 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SegmentedButton
+import androidx.compose.material3.SegmentedButtonDefaults
+import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.SmallFloatingActionButton
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
+import at.ac.hcw.procrastinot.data.Priority
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -82,8 +87,10 @@ fun AddEditTaskScreen(
             loading = uiState.isLoading,
             title = uiState.title,
             description = uiState.description,
+            priority = uiState.priority,
             onTitleChanged = viewModel::updateTitle,
             onDescriptionChanged = viewModel::updateDescription,
+            onPriorityChanged = viewModel::updatePriority,
             modifier = Modifier.padding(paddingValues)
         )
 
@@ -110,8 +117,10 @@ private fun AddEditTaskContent(
     loading: Boolean,
     title: String,
     description: String,
+    priority: Priority,
     onTitleChanged: (String) -> Unit,
     onDescriptionChanged: (String) -> Unit,
+    onPriorityChanged: (Priority) -> Unit,
     modifier: Modifier = Modifier
 ) {
     var isRefreshing by remember { mutableStateOf(false) }
@@ -159,6 +168,33 @@ private fun AddEditTaskContent(
                     .fillMaxWidth(),
                 colors = textFieldColors
             )
+            Spacer(modifier = Modifier.height(16.dp))
+            Text(
+                text = stringResource(id = R.string.priority_label),
+                style = MaterialTheme.typography.titleMedium
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            val priorities = Priority.entries
+            SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
+                priorities.forEachIndexed { index, p ->
+                    SegmentedButton(
+                        selected = priority == p,
+                        onClick = { onPriorityChanged(p) },
+                        shape = SegmentedButtonDefaults.itemShape(
+                            index = index,
+                            count = priorities.size
+                        )
+                    ) {
+                        Text(
+                            text = when (p) {
+                                Priority.HIGH -> stringResource(id = R.string.priority_high)
+                                Priority.MEDIUM -> stringResource(id = R.string.priority_medium)
+                                Priority.LOW -> stringResource(id = R.string.priority_low)
+                            }
+                        )
+                    }
+                }
+            }
         }
     }
 }
