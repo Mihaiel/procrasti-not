@@ -17,7 +17,11 @@
 package at.ac.hcw.procrastinot.di
 
 import android.content.Context
+import android.content.ContentValues
+import android.database.sqlite.SQLiteDatabase
 import androidx.room.Room
+import androidx.room.RoomDatabase
+import androidx.sqlite.db.SupportSQLiteDatabase
 import at.ac.hcw.procrastinot.data.DefaultTaskRepository
 import at.ac.hcw.procrastinot.data.TaskRepository
 import at.ac.hcw.procrastinot.data.source.local.TaskDao
@@ -30,6 +34,7 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
+import java.util.UUID
 import javax.inject.Singleton
 
 @Module
@@ -61,10 +66,58 @@ object DatabaseModule {
             context.applicationContext,
             ToDoDatabase::class.java,
             "Tasks.db"
-        ).fallbackToDestructiveMigration().build()
+        )
+            .fallbackToDestructiveMigration()
+            .addCallback(object : RoomDatabase.Callback() {
+                override fun onOpen(db: SupportSQLiteDatabase) {
+                    super.onOpen(db)
+                    val prefs = context.getSharedPreferences(
+                        "db_prefs", Context.MODE_PRIVATE
+                    )
+                    if (!prefs.getBoolean("db_seeded", false)) {
+                        seedTasks().forEach { (id, title, desc, priority) ->
+                            val values = ContentValues().apply {
+                                put("id", id)
+                                put("title", title)
+                                put("description", desc)
+                                put("isCompleted", 0)
+                                put("priority", priority)
+                            }
+                            db.insert("task", SQLiteDatabase.CONFLICT_IGNORE, values)
+                        }
+                        prefs.edit().putBoolean("db_seeded", true).apply()
+                    }
+                }
+            })
+            .build()
     }
 
     @Provides
     fun provideTaskDao(database: ToDoDatabase): TaskDao = database.taskDao()
+
+    private data class SeedTask(
+        val id: String, val title: String, val description: String, val priority: String
+    )
+
+    private fun seedTasks(): List<SeedTask> = listOf(
+        SeedTask(
+            id = UUID.randomUUID().toString(),
+            title = "Prepare AI Eindhoven presentation",
+            description = "Create slides and demo for the AI Eindhoven conference talk.",
+            priority = "HIGH"
+        ),
+        SeedTask(
+            id = UUID.randomUUID().toString(),
+            title = "Code review for Leon",
+            description = "Review Leon's pull request for the new feature branch.",
+            priority = "MEDIUM"
+        ),
+        SeedTask(
+            id = UUID.randomUUID().toString(),
+            title = "Help Flo and Mihaiel with brainstorming",
+            description = "Discuss app architecture ideas with Flo and Mihaiel over coffee.",
+            priority = "LOW"
+        ),
+    )
 }
 
