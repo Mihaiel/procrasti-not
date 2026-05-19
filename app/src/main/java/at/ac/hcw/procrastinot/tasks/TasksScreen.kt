@@ -18,10 +18,12 @@ package at.ac.hcw.procrastinot.tasks
 
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -33,9 +35,14 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.Checkbox
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SwipeToDismissBox
+import androidx.compose.material3.SwipeToDismissBoxValue
+import androidx.compose.material3.rememberSwipeToDismissBoxState
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SmallFloatingActionButton
 import androidx.compose.material3.SnackbarHost
@@ -121,6 +128,7 @@ fun TasksScreen(
             onRefresh = viewModel::refresh,
             onTaskClick = onTaskClick,
             onTaskCheckedChange = viewModel::completeTask,
+            onTaskDelete = viewModel::deleteTask,
             modifier = Modifier.padding(paddingValues)
         )
 
@@ -148,6 +156,7 @@ fun TasksScreen(
 }
 
 @Composable
+@OptIn(ExperimentalMaterial3Api::class)
 private fun TasksContent(
     loading: Boolean,
     tasks: List<Task>,
@@ -157,6 +166,7 @@ private fun TasksContent(
     onRefresh: () -> Unit,
     onTaskClick: (Task) -> Unit,
     onTaskCheckedChange: (Task, Boolean) -> Unit,
+    onTaskDelete: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
     LoadingContent(
@@ -179,12 +189,53 @@ private fun TasksContent(
                 style = MaterialTheme.typography.headlineSmall
             )
             LazyColumn {
-                items(tasks) { task ->
-                    TaskItem(
-                        task = task,
-                        onTaskClick = onTaskClick,
-                        onCheckedChange = { onTaskCheckedChange(task, it) }
+                items(tasks, key = { it.id }) { task ->
+                    val dismissState = rememberSwipeToDismissBoxState(
+                        confirmValueChange = {
+                            if (it == SwipeToDismissBoxValue.EndToStart) {
+                                onTaskDelete(task.id)
+                                true
+                            } else {
+                                false
+                            }
+                        }
                     )
+                    SwipeToDismissBox(
+                        state = dismissState,
+                        enableDismissFromStartToEnd = false,
+                        backgroundContent = {
+                            val color by animateColorAsState(
+                                targetValue = if (dismissState.targetValue == SwipeToDismissBoxValue.EndToStart)
+                                    MaterialTheme.colorScheme.error
+                                else
+                                    Color.Transparent,
+                                label = "swipeBackground"
+                            )
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .padding(
+                                        horizontal = dimensionResource(id = R.dimen.horizontal_margin),
+                                        vertical = dimensionResource(id = R.dimen.list_item_padding),
+                                    )
+                                    .background(color, RoundedCornerShape(8.dp))
+                                    .padding(horizontal = 20.dp),
+                                contentAlignment = Alignment.CenterEnd
+                            ) {
+                                Icon(
+                                    Icons.Filled.Delete,
+                                    contentDescription = stringResource(R.string.menu_delete_task),
+                                    tint = Color.White
+                                )
+                            }
+                        }
+                    ) {
+                        TaskItem(
+                            task = task,
+                            onTaskClick = onTaskClick,
+                            onCheckedChange = { onTaskCheckedChange(task, it) }
+                        )
+                    }
                 }
             }
         }
@@ -310,6 +361,7 @@ private fun TasksContentPreview() {
                 onRefresh = { },
                 onTaskClick = { },
                 onTaskCheckedChange = { _, _ -> },
+                onTaskDelete = { },
             )
         }
     }
@@ -329,6 +381,7 @@ private fun TasksContentEmptyPreview() {
                 onRefresh = { },
                 onTaskClick = { },
                 onTaskCheckedChange = { _, _ -> },
+                onTaskDelete = { },
             )
         }
     }
